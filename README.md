@@ -1,5 +1,5 @@
 # owo - An osu! Discord bot
-This is owo, an instance of Red, an open source Discord bot created by [Twentysix](https://github.com/Twentysix26/Red-DiscordBot) and modified by Stevy for the specific purpose of Osu!.
+This is [owo](http://owobot.xyz/), an instance of Red, an open source Discord bot created by [Twentysix](https://github.com/Twentysix26/Red-DiscordBot) and modified by Stevy for the specific purpose of Osu!.
 
 Key Features include:
 - User profiles
