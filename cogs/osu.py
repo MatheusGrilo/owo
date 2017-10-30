@@ -3210,131 +3210,66 @@ def no_choke_acc(beatmap, gamemode:int):
 
 # gives a list of the ranked mods given a peppy number lol
 def num_to_mod(number):
-    #####!!!!!!!!!! see note below..
+    """This is the way pyttanko does it. 
+    Just as an actual bitwise instead of list. 
+    Deal with it."""
     number = int(number)
     mod_list = []
 
-    if number >= 268435456:
-        number -= 268435456
-        mod_list.append('2 KEY')
-    if number >= 134217728:
-        number -= 134217728
-        mod_list.append('3 KEY')
-    if number >= 67108864:
-        number -= 67108864
-        mod_list.append('1 KEY')
-    if number >= 33554432:
-        number -= 33554432
-        mod_list.append('10 KEY')
-    if number >= 16777216:
-        number -= 16777216
-        mod_list.append('9 KEY')
-    if number >= 1048576:
-        number -= 1048576
-        mod_list.append('FI')
-    if number >= 524288:
-        number -= 524288
-        mod_list.append('8 KEY')
-    if number >= 262144:
-        number -= 262144
-        mod_list.append('7 KEY')
-    if number >= 131072:
-        number -= 131072
-        mod_list.append('6 KEY')
-    if number >= 65536:
-        number -= 65536
-        mod_list.append('5 KEY')
-    if number >= 32768:
-        number -= 32768
-        mod_list.append('4 KEY')
-    if number >= 16384:
-        number -= 16384
-        mod_list.append('PF')
-    if number >= 4096:
-        number-= 4096
-        mod_list.append('SO')
-    if number >= 1024:
-        number-= 1024
-        mod_list.append('FL')
-    if number >= 576:
-        number-= 576
-        mod_list.append('NC')
-    if number >= 256:
-        number-= 256
-        mod_list.append('HT')
-    if number >= 128:
-        number-= 128
-        mod_list.append('RX')
-    if number >= 64:
-        number-= 64
-        mod_list.append('DT')
-    if number >= 32:
-        number-= 32
-        mod_list.append('SD')
-    if number >= 16:
-        number-= 16
-        mod_list.append('HR')
-    if number >= 8:
-        number-= 8
-        mod_list.append('HD')
-    if number >= 2:
-        number-= 2
-        mod_list.append('EZ')
-    if number >= 1:
-        number-= 1
-        mod_list.append('NF')
+    if number & 1<<0:  mod_list.append('NF')
+    if number & 1<<1:  mod_list.append('EZ')
+    if number & 1<<3:  mod_list.append('HD')
+    if number & 1<<4:  mod_list.append('HR')
+    if number & 1<<5:  mod_list.append('SD')
+    if number & 1<<6:  mod_list.append('DT')
+    if number & 1<<7:  mod_list.append('RX')
+    if number & 1<<8:  mod_list.append('HT')
+    if number & 1<<9:  mod_list.append('NC')
+    if number & 1<<10: mod_list.append('FL')
+    if number & 1<<12: mod_list.append('SO')
+    if number & 1<<14: mod_list.append('PF')
+    if number & 1<<15: mod_list.append('4 KEY')
+    if number & 1<<16: mod_list.append('5 KEY')
+    if number & 1<<17: mod_list.append('6 KEY')
+    if number & 1<<18: mod_list.append('7 KEY')
+    if number & 1<<19: mod_list.append('8 KEY')
+    if number & 1<<20: mod_list.append('FI')
+    if number & 1<<24: mod_list.append('9 KEY')
+    if number & 1<<25: mod_list.append('10 KEY')
+    if number & 1<<26: mod_list.append('1 KEY')
+    if number & 1<<27: mod_list.append('3 KEY')
+    if number & 1<<28: mod_list.append('2 KEY')
+
     return mod_list
 
 def mod_to_num(mods:str):
-    ###### !!!! this is so very awful... *use for loop with powers of 2
+    """It works."""
     mods = mods.upper()
     total = 0
-    if '2 KEY' in mods:
-        total += 268435456
-    if '3 KEY' in mods:
-        total += 134217728
-    if '1 KEY' in mods:
-        total += 67108864
-    if '10 KEY' in mods:
-        total += 33554432
-    if '9 KEY' in mods:
-        total += 16777216
-    if 'FI' in mods:
-        total += 1048576
-    if '8 KEY' in mods:
-        total += 524288
-    if '7 KEY' in mods:
-        total += 262144
-    if '6 KEY' in mods:
-        total += 131072
-    if '5 KEY' in mods:
-        total += 65536
-    if '4 KEY' in mods:
-        total += 32768
-    if 'PF' in mods:
-        total += 16384
-    if 'SO' in mods:
-        total += 4096
-    if 'FL' in mods:
-        total += 1024
-    if 'NC' in mods:
-        total += 576
-    elif 'DT' in mods:
-        total += 64
-    if 'HT' in mods:
-        total += 256
-    if 'RX' in mods:
-        total += 128
-    if 'SD' in mods:
-        total += 32
-    if 'HR' in mods:
-        total += 16
-    if 'HD' in mods:
-        total += 8
-    if 'EZ' in mods:
-        total += 2
-    if 'NF' in mods:
-        total += 1
+
+    if 'NF' in mods:    total += 1<<0
+    if 'EZ' in mods:    total += 1<<1
+    if 'HD' in mods:    total += 1<<3
+    if 'HR' in mods:    total += 1<<4
+    if 'SD' in mods:    total += 1<<5
+    if 'DT' in mods:    total += 1<<6
+    if 'RX' in mods:    total += 1<<7
+    if 'HT' in mods:    total += 1<<8
+    if 'NC' in mods:    total += 1<<9
+    if 'FL' in mods:    total += 1<<10
+    if 'SO' in mods:    total += 1<<12
+    if 'PF' in mods:    total += 1<<14
+    if '4 KEY' in mods: total += 1<<15
+    if '5 KEY' in mods: total += 1<<16
+    if '6 KEY' in mods: total += 1<<17
+    if '7 KEY' in mods: total += 1<<18
+    if '8 KEY' in mods: total += 1<<19
+    if 'FI' in mods:    total += 1<<20
+    if '9 KEY' in mods: total += 1<<24
+    if '10 KEY'in mods: total += 1<<25
+    if '1 KEY' in mods: total += 1<<26
+    if '3 KEY' in mods: total += 1<<27
+    if '2 KEY' in mods: total += 1<<28
 
     return int(total)
 
