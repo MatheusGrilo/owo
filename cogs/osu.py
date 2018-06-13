@@ -256,15 +256,20 @@ class Osu:
         else:
             await self.bot.say(help_msg[1])
 
-    @osuset.group(name="key", pass_context=True)
+    @osuset.command(pass_context=True)
     @checks.is_owner()
-    async def setkey(self, ctx):
-        """Sets your osu and puush api key"""
-        if ctx.invoked_subcommand is None:
-            await send_cmd_help(ctx)
+    async def key(self, ctx):
+        """Sets your osu api key"""
+        await self.bot.whisper("Type your osu! api key. You can reply here.")
+        key = await self.bot.wait_for_message(timeout=30, author=ctx.message.author)
+        if key is None:
             return
+        else:
+            self.api_keys["osu_api_key"] = key.content
+            fileIO("data/osu/apikey.json", "save", self.api_keys)
+            await self.bot.whisper("osu! API Key details added. :white_check_mark:")
 
-    @setkey.command(name="imgur", pass_context=True)
+    @osuset.command(pass_context=True)
     @checks.is_owner()
     async def setimgur(self, ctx):
         await self.bot.whisper("Type your imgur client ID. You can reply here.")
@@ -281,18 +286,6 @@ class Osu:
         fileIO("data/osu/apikey.json", "save", self.api_keys)
         self.imgur = ImgurClient(client_id.content, client_secret.content)
         await self.bot.whisper("Imgur API details added. :white_check_mark:")
-
-    @setkey.command(name="osu", pass_context=True)
-    @checks.is_owner()
-    async def setosu(self, ctx):
-        await self.bot.whisper("Type your osu! api key. You can reply here.")
-        key = await self.bot.wait_for_message(timeout=30, author=ctx.message.author)
-        if key is None:
-            return
-        else:
-            self.api_keys["osu_api_key"] = key.content
-            fileIO("data/osu/apikey.json", "save", self.api_keys)
-            await self.bot.whisper("osu! API Key details added. :white_check_mark:")
 
     @commands.command(pass_context=True, no_pm=True)
     async def osu(self, ctx, *username):
@@ -346,11 +339,11 @@ class Osu:
     @commands.command(pass_context=True)
     async def scores(self, ctx, map_link, *username):
         """[p]scores map_link [-t] [username]"""
-        if not 'https://osu.ppy.sh/b/' in map_link:
+        if not 'https://old.ppy.sh/b/' in map_link:
             await self.bot.say("There needs to be a proper beatmap link")
             return
         else:
-            map_link = map_link.replace('https://osu.ppy.sh/b/', '')
+            map_link = map_link.replace('https://old.ppy.sh/b/', '')
         await self._process_map_score(ctx, map_link, username)
 
     @commands.command(pass_context = True, name = 'osuleaderboard', aliases = ['ol','osul'])
@@ -947,7 +940,7 @@ class Osu:
         elif api == self.osu_settings["type"]["ripple"]:
             profile_url = 'http://a.ripple.moe/{}.png'.format(user['user_id'])
 
-        flag_url = 'https://osu.ppy.sh/images/flags/{}.png'.format(user['country'])
+        flag_url = 'https://old.ppy.sh/images/flags/{}.png'.format(user['country'])
         gamemode_text = get_gamemode(gamemode)
 
         msg = ''
@@ -964,7 +957,7 @@ class Osu:
             if not mods:
                 mods = []
                 mods.append('No Mod')
-            beatmap_url = 'https://osu.ppy.sh/b/{}'.format(best_beatmaps[i]['beatmap_id'])
+            beatmap_url = 'https://old.ppy.sh/b/{}'.format(best_beatmaps[i]['beatmap_id'])
 
             info = ''
             if not score_num:
@@ -1004,7 +997,7 @@ class Osu:
         else:
             title = "Top {} {} Plays for {}".format(self.osu_settings['num_best_plays'], gamemode_text, user['username'])
 
-        em.set_author(name = title, url="https://osu.ppy.sh/u/{}".format(user['user_id']), icon_url=flag_url)
+        em.set_author(name = title, url="https://old.ppy.sh/u/{}".format(user['user_id']), icon_url=flag_url)
         em.set_footer(text = "On osu! {} Server".format(self._get_api_name(api)))
         em.set_thumbnail(url=profile_url)
 
@@ -1123,7 +1116,7 @@ class Osu:
             profile_url = 'http://a.ripple.moe/{}.png'.format(user['user_id'])
             pp_country_rank = ""
 
-        flag_url = 'https://osu.ppy.sh/images/flags/{}.png'.format(user['country'])
+        flag_url = 'https://old.ppy.sh/images/flags/{}.png'.format(user['country'])
 
         gamemode_text = get_gamemode(gamemode)
 
@@ -1144,7 +1137,7 @@ class Osu:
         em.description = info
 
         if api == self.osu_settings["type"]["default"]:
-            time_url = "https://osu.ppy.sh/u/{}".format(user['user_id'])
+            time_url = "https://old.ppy.sh/u/{}".format(user['user_id'])
             soup = await get_web(time_url)
             timestamps = []
             for tag in soup.findAll(attrs={'class': 'timeago'}):
@@ -1172,7 +1165,7 @@ class Osu:
             profile_url = 'http://a.ripple.moe/{}.png'.format(user['user_id'])
             pp_country_rank = ""
 
-        flag_url = 'https://osu.ppy.sh/images/flags/{}.png'.format(user['country'])
+        flag_url = 'https://old.ppy.sh/images/flags/{}.png'.format(user['country'])
 
         gamemode_text = get_gamemode(gamemode)
 
@@ -1214,7 +1207,7 @@ class Osu:
             int(user['count_rank_a']), (int(user['count_rank_a']) / totalranks) * 100)
 
         if api == self.osu_settings["type"]["default"]:
-            time_url = "https://osu.ppy.sh/u/{}".format(user['user_id'])
+            time_url = "https://old.ppy.sh/u/{}".format(user['user_id'])
             soup = await get_web(time_url)
             timestamps = []
             for tag in soup.findAll(attrs={'class': 'timeago'}):
@@ -1282,7 +1275,7 @@ class Osu:
         elif api == self.osu_settings["type"]["ripple"]:
             profile_url = 'http://a.ripple.moe/{}.png'.format(user['user_id'])
 
-        flag_url = 'https://osu.ppy.sh/images/flags/{}.png'.format(user['country'])
+        flag_url = 'https://old.ppy.sh/images/flags/{}.png'.format(user['country'])
 
         # get best plays map information and scores
         beatmap = list(await get_beatmap(key, api, beatmap_id=userrecent['beatmap_id']))[0]
@@ -1299,7 +1292,7 @@ class Osu:
         else:
             oppai_mods = "+{}".format("".join(mods))
 
-        beatmap_url = 'https://osu.ppy.sh/b/{}'.format(beatmap['beatmap_id'])
+        beatmap_url = 'https://old.ppy.sh/b/{}'.format(beatmap['beatmap_id'])
 
         msg = "**Most Recent {} Play for {}:**".format(get_gamemode(gamemode), user['username'])
         info = ""
@@ -1352,12 +1345,12 @@ class Osu:
             num_plays = self.osu_settings['num_best_plays']
 
         user_id = user['user_id']
-        url = "https://osu.ppy.sh/u/{}".format(user['user_id'])
+        url = "https://old.ppy.sh/u/{}".format(user['user_id'])
         mode = modes[gamemode]
         if gamemode == 2:
             mode = "fruits"
 
-        url = 'https://osu.ppy.sh/users/{}'.format(user_id)
+        url = 'https://old.ppy.sh/users/{}'.format(user_id)
         soup = await get_web(url, parser = "lxml")
         script = soup.find('script',{"id": "json-user"})
         user = json.loads(script.get_text())
@@ -1408,7 +1401,7 @@ class Osu:
         elif api == self.osu_settings["type"]["ripple"]:
             profile_url = 'http://a.ripple.moe/{}.png'.format(user['user_id'])
 
-        flag_url = 'https://osu.ppy.sh/images/flags/{}.png'.format(user['country'])
+        flag_url = 'https://old.ppy.sh/images/flags/{}.png'.format(user['country'])
         gamemode_text = get_gamemode(gamemode)
 
         # sort the scores based on pp
@@ -1436,7 +1429,7 @@ class Osu:
             if not mods:
                 mods = []
                 mods.append('No Mod')
-            beatmap_url = 'https://osu.ppy.sh/b/{}'.format(best_beatmaps[i]['beatmap_id'])
+            beatmap_url = 'https://old.ppy.sh/b/{}'.format(best_beatmaps[i]['beatmap_id'])
 
             info = ''
             star_str, _ = compare_val(best_beatmaps[i]['difficultyrating'], oppai_info, param = 'stars', dec_places = 2, single = True)
@@ -1459,7 +1452,7 @@ class Osu:
             desc += info
         em = discord.Embed(description=desc, colour=server_user.colour)
         title = "Top {} Plays for {} on {}".format(gamemode_text, user['username'], mapname)
-        em.set_author(name = title, url="https://osu.ppy.sh/b/{}".format(map_id), icon_url=flag_url)
+        em.set_author(name = title, url="https://old.ppy.sh/b/{}".format(map_id), icon_url=flag_url)
         em.set_footer(text = "On osu! {} Server".format(self._get_api_name(api)))
         em.set_thumbnail(url=profile_url)
 
@@ -1566,7 +1559,7 @@ class Osu:
 
         if suggest_list:
             beatmap_id, mods = random.choice(suggest_list)
-            beatmap_url = 'https://osu.ppy.sh/b/{}'.format(beatmap_id)
+            beatmap_url = 'https://old.ppy.sh/b/{}'.format(beatmap_id)
             beatmap = await get_beatmap(key, self.osu_settings["type"]["default"], beatmap_id)
             await self.disp_beatmap(ctx.message, beatmap, beatmap_url, mods=mods, username = ctx.message.author.name)
         else:
@@ -1695,7 +1688,7 @@ class Osu:
 
         ## -------------------- user url detection ---------------------
 
-        if 'https://osu.ppy.sh/u/' in original_message:
+        if 'https://old.ppy.sh/u/' in original_message:
             await self.process_user_url(all_urls, message)
 
         ## -------------------- beatmap detection ---------------------
@@ -1707,10 +1700,11 @@ class Osu:
         if server_options is None or server_options["beatmap"]:
             # try:
             beatmap_url_triggers = [
-                'https://osu.ppy.sh/s/',
-                'https://osu.ppy.sh/b/',
-                'http://osu.ppy.sh/ss/',
-                'https://osu.ppy.sh/ss/',
+            	'https://osu.ppy.sh/beatmapsets/',
+                'https://old.ppy.sh/s/',
+                'https://old.ppy.sh/b/',
+                'http://old.ppy.sh/ss/',
+                'https://old.ppy.sh/ss/',
                 'http://ripple.moe/ss/',
                 'https://ripple.moe/ss/',
                 'https://puu.sh',
@@ -1735,8 +1729,8 @@ class Osu:
 
         for url, suffix in all_urls:
             try:
-                if url.find('https://osu.ppy.sh/u/') != -1:
-                    user_id = url.replace('https://osu.ppy.sh/u/','')
+                if url.find('https://old.ppy.sh/u/') != -1:
+                    user_id = url.replace('https://old.ppy.sh/u/','')
                     user_info = await get_user(
                         key, self.osu_settings["type"]["default"], user_id, 0)
                     find_user = db.user_settings.find_one({"user_id":user_id})
@@ -1757,8 +1751,8 @@ class Osu:
         # print(all_urls)
         for url, mods in all_urls:
             screenshot_links = [
-                'http://osu.ppy.sh/ss/',
-                'https://osu.ppy.sh/ss/',
+                'http://old.ppy.sh/ss/',
+                'https://old.ppy.sh/ss/',
                 'http://ripple.moe/ss/',
                 'https://ripple.moe/ss/',
                 'https://puu.sh',
@@ -1767,14 +1761,14 @@ class Osu:
 
             is_screenshot = any([url.find(link) != -1 for link in screenshot_links]) # checked twice..?
             #try:
-            if url.find('https://osu.ppy.sh/s/') != -1:
-                beatmap_id = url.replace('https://osu.ppy.sh/s/','')
+            if url.find('https://old.ppy.sh/s/') != -1:
+                beatmap_id = url.replace('https://old.ppy.sh/s/','')
                 beatmap_info = await get_beatmapset(key, self.osu_settings["type"]["default"], beatmap_id)
                 extra_info = None
                 display_if = (server_options and server_options['graph_beatmap']) or (server_options is None)
                 include_graph = display_if and len(beatmap_info) == 1
-            elif url.find('https://osu.ppy.sh/b/') != -1:
-                beatmap_id = url.replace('https://osu.ppy.sh/b/','')
+            elif url.find('https://old.ppy.sh/b/') != -1:
+                beatmap_id = url.replace('https://old.ppy.sh/b/','')
                 # find mods
                 beatmap_info = await get_beatmap(key, self.osu_settings["type"]["default"], beatmap_id)
                 extra_info = None
@@ -1883,7 +1877,7 @@ class Osu:
             for attr in ['best', 'recent']:
                 # get from site
                 try:
-                    url = 'https://osu.ppy.sh/users/{}/{}'.format(player_name, mode)
+                    url = 'https://old.ppy.sh/users/{}/{}'.format(player_name, mode)
                     soup = await get_web(url, parser = "lxml")
                     script = soup.find('script',{"id": "json-scores"})
                     user = json.loads(script.get_text())
@@ -1928,7 +1922,8 @@ class Osu:
                                 }
                             mods = fix_mods(''.join(play['mods']))
                             beatmap_id = play['beatmap']['id']
-                            url = 'https://osu.ppy.sh/b/{}'.format(beatmap_id)
+                            url = 'https://old.ppy.sh/b/{}'.format(beatmap_id)
+                            ## Grilo, check it later pls and delete this line
                             beatmap_info = await get_beatmap(key, self.osu_settings["type"]["default"], beatmap_id)
                             return (beatmap_info, beatmap_id, mods, url, extra_info)
 
@@ -1947,9 +1942,9 @@ class Osu:
         max_similarity = 0
         map_sims = []
         for result in google_results:
-            if 'https://osu.ppy.sh/s/' in result:
+            if 'https://old.ppy.sh/s/' in result:
                 url = ''
-                beatmapset_id = result.replace('https://osu.ppy.sh/s/','')
+                beatmapset_id = result.replace('https://old.ppy.sh/s/','')
                 beatmap_info = await get_beatmapset(key, self.osu_settings["type"]["default"], beatmapset_id)
                 # grab the correct map
                 max_similarity = 0
@@ -1963,7 +1958,7 @@ class Osu:
                 # print(map_sims, map_index)
                 bm_info = beatmap_info[map_index]
                 beatmap_id = beatmap_info[map_index]["beatmap_id"]
-                url = 'https://osu.ppy.sh/b/{}'.format(beatmap_id)
+                url = 'https://old.ppy.sh/b/{}'.format(beatmap_id)
 
                 return_tup = ([bm_info], beatmap_id, '', url, None)
                 if max_similarity >= g_result_upper_threshold:
@@ -1971,9 +1966,9 @@ class Osu:
                 else:
                     overall_map_list.append((max_similarity, return_tup))
 
-            elif 'https://osu.ppy.sh/b/' in result:
+            elif 'https://old.ppy.sh/b/' in result:
                 url = result
-                beatmap_id = result.replace('https://osu.ppy.sh/b/','')
+                beatmap_id = result.replace('https://old.ppy.sh/b/','')
                 beatmap_info = await get_beatmap(key, self.osu_settings["type"]["default"], beatmap_id)
                 beatmap_info = beatmap_info[0]
                 title = '{} - {} [{}]'.format(beatmap_info['artist'], beatmap_info['title'], beatmap_info['version'])
@@ -2028,13 +2023,8 @@ class Osu:
                 beatmap[0]['beatmap_id'], accs = [float(extra_info['accuracy']*100)], mods = mod_num, completion = totalhits)
             extra_info['pp'] = user_oppai_info['pp'][0]
 
-        # safe protect
-        if self.imgur.credits['ClientRemaining'] is not None and int(self.imgur.credits['ClientRemaining']) >= 60:
-            imgur_object = self.imgur
-        else:
-            imgur_object = None
-
-        oppai_info = await get_pyoppai(beatmap[0]['beatmap_id'], accs = accs, mods = mod_num, plot = graph, imgur = imgur_object)
+        oppai_info = await get_pyoppai(beatmap[0]['beatmap_id'], accs = accs, mods = mod_num, plot = graph, imgur = self.imgur
+)
 
         m0, s0 = divmod(int(beatmap[0]['total_length']), 60)
         if oppai_info != None:
@@ -2131,7 +2121,7 @@ class Osu:
 
             desc += "**{} play for [{}]({})\n▸ {} rank  ▸ {}pp{}  ▸ {:.2f}%**\n".format(
                 extra_info['type'],
-                extra_info['username'], 'https://osu.ppy.sh/users/{}'.format(extra_info['username'].replace(' ', '\\_').replace("_", "\\_")),
+                extra_info['username'], 'https://old.ppy.sh/users/{}'.format(extra_info['username'].replace(' ', '\\_').replace("_", "\\_")),
                 extra_info['rank'], pp, official, float(extra_info['accuracy']*100))
             timeago = time_ago(
                 datetime.datetime.utcnow(),
@@ -2163,8 +2153,8 @@ class Osu:
         await self.bot.send_message(message.channel, msg, embed = em)
 
     def _get_dl_links(self, beatmapset_id, beatmap_id):
-        vid = 'https://osu.ppy.sh/d/{}'.format(beatmapset_id)
-        novid = 'https://osu.ppy.sh/d/{}n'.format(beatmapset_id)
+        vid = 'https://old.ppy.sh/d/{}'.format(beatmapset_id)
+        novid = 'https://old.ppy.sh/d/{}n'.format(beatmapset_id)
         direct = 'osu://b/{}'.format(beatmap_id)
         bloodcat = 'https://bloodcat.com/osu/s/{}'.format(beatmapset_id)
 
@@ -2877,7 +2867,7 @@ class Tracking:
         return required_modes_txt
 
     async def _create_top_play(self, top_play_num, play, beatmap, old_user_info, new_user_info, gamemode):
-        beatmap_url = 'https://osu.ppy.sh/b/{}'.format(play['beatmap_id'])
+        beatmap_url = 'https://old.ppy.sh/b/{}'.format(play['beatmap_id'])
         user_url = 'https://{}/u/{}'.format(self.osu_settings["type"]["default"], new_user_info['user_id'])
         profile_url = 'https://a.ppy.sh/{}'.format(new_user_info['user_id'])
         beatmap = beatmap[0]
@@ -2987,7 +2977,7 @@ class Tracking:
     async def get_map_rank(self, osu_userid, title):
         try:
             ret = None
-            url = 'https://osu.ppy.sh/users/{}'.format(osu_userid)
+            url = 'https://old.ppy.sh/users/{}'.format(osu_userid)
             soup = await get_web(url, parser = "lxml")
             find = soup.find('script',{"id": "json-user"})
             user = json.loads(find.get_text())
@@ -3210,66 +3200,131 @@ def no_choke_acc(beatmap, gamemode:int):
 
 # gives a list of the ranked mods given a peppy number lol
 def num_to_mod(number):
-    """This is the way pyttanko does it. 
-    Just as an actual bitwise instead of list. 
-    Deal with it."""
+    #####!!!!!!!!!! see note below..
     number = int(number)
     mod_list = []
 
-    if number & 1<<0:   mod_list.append('NF')
-    if number & 1<<1:   mod_list.append('EZ')
-    if number & 1<<3:   mod_list.append('HD')
-    if number & 1<<4:   mod_list.append('HR')
-    if number & 1<<5:   mod_list.append('SD')
-    if number & 1<<9:   mod_list.append('NC')
-    elif number & 1<<6: mod_list.append('DT')
-    if number & 1<<7:   mod_list.append('RX')
-    if number & 1<<8:   mod_list.append('HT')
-    if number & 1<<10:  mod_list.append('FL')
-    if number & 1<<12:  mod_list.append('SO')
-    if number & 1<<14:  mod_list.append('PF')
-    if number & 1<<15:  mod_list.append('4 KEY')
-    if number & 1<<16:  mod_list.append('5 KEY')
-    if number & 1<<17:  mod_list.append('6 KEY')
-    if number & 1<<18:  mod_list.append('7 KEY')
-    if number & 1<<19:  mod_list.append('8 KEY')
-    if number & 1<<20:  mod_list.append('FI')
-    if number & 1<<24:  mod_list.append('9 KEY')
-    if number & 1<<25:  mod_list.append('10 KEY')
-    if number & 1<<26:  mod_list.append('1 KEY')
-    if number & 1<<27:  mod_list.append('3 KEY')
-    if number & 1<<28:  mod_list.append('2 KEY')
-
+    if number >= 268435456:
+        number -= 268435456
+        mod_list.append('2 KEY')
+    if number >= 134217728:
+        number -= 134217728
+        mod_list.append('3 KEY')
+    if number >= 67108864:
+        number -= 67108864
+        mod_list.append('1 KEY')
+    if number >= 33554432:
+        number -= 33554432
+        mod_list.append('10 KEY')
+    if number >= 16777216:
+        number -= 16777216
+        mod_list.append('9 KEY')
+    if number >= 1048576:
+        number -= 1048576
+        mod_list.append('FI')
+    if number >= 524288:
+        number -= 524288
+        mod_list.append('8 KEY')
+    if number >= 262144:
+        number -= 262144
+        mod_list.append('7 KEY')
+    if number >= 131072:
+        number -= 131072
+        mod_list.append('6 KEY')
+    if number >= 65536:
+        number -= 65536
+        mod_list.append('5 KEY')
+    if number >= 32768:
+        number -= 32768
+        mod_list.append('4 KEY')
+    if number >= 16384:
+        number -= 16384
+        mod_list.append('PF')
+    if number >= 4096:
+        number-= 4096
+        mod_list.append('SO')
+    if number >= 1024:
+        number-= 1024
+        mod_list.append('FL')
+    if number >= 576:
+        number-= 576
+        mod_list.append('NC')
+    if number >= 256:
+        number-= 256
+        mod_list.append('HT')
+    if number >= 128:
+        number-= 128
+        mod_list.append('RX')
+    if number >= 64:
+        number-= 64
+        mod_list.append('DT')
+    if number >= 32:
+        number-= 32
+        mod_list.append('SD')
+    if number >= 16:
+        number-= 16
+        mod_list.append('HR')
+    if number >= 8:
+        number-= 8
+        mod_list.append('HD')
+    if number >= 2:
+        number-= 2
+        mod_list.append('EZ')
+    if number >= 1:
+        number-= 1
+        mod_list.append('NF')
     return mod_list
 
 def mod_to_num(mods:str):
-    """It works."""
+    ###### !!!! this is so very awful... *use for loop with powers of 2
     mods = mods.upper()
     total = 0
-
-    if 'NF' in mods:    total += 1<<0
-    if 'EZ' in mods:    total += 1<<1
-    if 'HD' in mods:    total += 1<<3
-    if 'HR' in mods:    total += 1<<4
-    if 'SD' in mods:    total += 1<<5
-    if 'DT' in mods:    total += 1<<6
-    if 'RX' in mods:    total += 1<<7
-    if 'HT' in mods:    total += 1<<8
-    if 'NC' in mods:    total += 1<<9
-    if 'FL' in mods:    total += 1<<10
-    if 'SO' in mods:    total += 1<<12
-    if 'PF' in mods:    total += 1<<14
-    if '4 KEY' in mods: total += 1<<15
-    if '5 KEY' in mods: total += 1<<16
-    if '6 KEY' in mods: total += 1<<17
-    if '7 KEY' in mods: total += 1<<18
-    if '8 KEY' in mods: total += 1<<19
-    if 'FI' in mods:    total += 1<<20
-    if '9 KEY' in mods: total += 1<<24
-    if '10 KEY'in mods: total += 1<<25
-    if '1 KEY' in mods: total += 1<<26
-    if '3 KEY' in mods: total += 1<<27
-    if '2 KEY' in mods: total += 1<<28
+    if '2 KEY' in mods:
+        total += 268435456
+    if '3 KEY' in mods:
+        total += 134217728
+    if '1 KEY' in mods:
+        total += 67108864
+    if '10 KEY' in mods:
+        total += 33554432
+    if '9 KEY' in mods:
+        total += 16777216
+    if 'FI' in mods:
+        total += 1048576
+    if '8 KEY' in mods:
+        total += 524288
+    if '7 KEY' in mods:
+        total += 262144
+    if '6 KEY' in mods:
+        total += 131072
+    if '5 KEY' in mods:
+        total += 65536
+    if '4 KEY' in mods:
+        total += 32768
+    if 'PF' in mods:
+        total += 16384
+    if 'SO' in mods:
+        total += 4096
+    if 'FL' in mods:
+        total += 1024
+    if 'NC' in mods:
+        total += 576
+    elif 'DT' in mods:
+        total += 64
+    if 'HT' in mods:
+        total += 256
+    if 'RX' in mods:
+        total += 128
+    if 'SD' in mods:
+        total += 32
+    if 'HR' in mods:
+        total += 16
+    if 'HD' in mods:
+        total += 8
+    if 'EZ' in mods:
+        total += 2
+    if 'NF' in mods:
+        total += 1
 
     return int(total)
 
@@ -3363,7 +3418,7 @@ async def get_leaderboard(mode = 0, country_code = None, limit = 50):
         country = ''
         if country_code is not None and country_code != 'GLOBAL':
             country = 'country={}&'.format(str(country_code).upper())
-        url = 'https://osu.ppy.sh/rankings/{}/performance?{}page={}#jump-target'.format(modes2[mode], country, i+1)
+        url = 'https://old.ppy.sh/rankings/{}/performance?{}page={}#jump-target'.format(modes2[mode], country, i+1)
 
         soup = await get_web(url)
         span_tags = list(soup.findAll('span'))
@@ -3380,10 +3435,10 @@ async def get_leaderboard(mode = 0, country_code = None, limit = 50):
 
 async def get_top_cc(pages = 1):
     """Get country codes for top 50"""
-    target_base = 'https://osu.ppy.sh/rankings/osu/performance?country='
+    target_base = 'https://old.ppy.sh/rankings/osu/performance?country='
 
     for i in range(pages):
-        url = 'https://osu.ppy.sh/rankings/osu/country?page={}#jump-target'.format(i)
+        url = 'https://old.ppy.sh/rankings/osu/country?page={}#jump-target'.format(i)
         soup = await get_web(url)
         a_tags = list(soup.findAll('a'))
 
@@ -3431,7 +3486,7 @@ async def get_google_search(search_terms:str, include_title = False):
 
     final_list = []
     for link in query_find:
-        if 'osu.ppy.sh/' in link:
+        if 'old.ppy.sh/' in link:
             final_list.append(link)
 
     return final_list
@@ -3613,7 +3668,7 @@ async def cache_beatmap(beatmaps):
 
 # Written by Jams
 async def get_pyoppai(map_id:str, accs=[100], mods=0, misses=0, combo=None, completion=None, fc=None, plot = False, imgur = None):
-    url = 'https://osu.ppy.sh/osu/{}'.format(map_id)
+    url = 'https://old.ppy.sh/osu/{}'.format(map_id)
 
     # try:
     ctx = pyoppai.new_ctx()
@@ -3907,18 +3962,15 @@ async def plot_map_stars(beatmap, mods, imgur):
     plt.ylabel('Stars')
     plt.legend(loc='best')
     plt.tight_layout()
-    filepath = "{}.png".format(beatmap)
+    filepath = '{}.png'.format(beatmap)
     plt.savefig(filepath)
     plt.close()
-    print(imgur.credits['ClientRemaining'])
-    if int(imgur.credits['ClientRemaining']) < 50:
-        return 'http://i.imgur.com/iOA0QMA.png'
 
     pfile = imgur.upload_from_path(filepath)
     os.remove(filepath)
     return pfile['link']
-    #except:
-        #return 'http://i.imgur.com/iOA0QMA.png'
+    
+    #return 'http://i.imgur.com/2TZYork.jpg'
 
 def plot_time_format(time, pos=None):
     s, mili = divmod(time, 1000)
@@ -4031,7 +4083,7 @@ def check_files():
         print("Adding data/osu/osu_settings.json...")
         fileIO(settings_file, "save", {
             "type": {
-                "default": "osu.ppy.sh",
+                "default": "old.ppy.sh",
                 "ripple":"ripple.moe"
                 },
             "num_track" : 50,
